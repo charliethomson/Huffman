@@ -11,16 +11,13 @@ public class DataDeserializationService : IDataDeserializationService
         var currentOffset = 0;
 
         var section = data[currentOffset];
+        var buffer = new List<int>(data.Count * 2);
 
         var currentIndex = 1;
 
-        InternalTreeNode CurrentNode() => nodes[currentIndex - 1];
-
-        var content = "";
-
-
         while (currentOffset < data.Count)
         {
+            var currentNode = nodes[currentIndex - 1];
             if (bitOffset < 0)
             {
                 bitOffset = 7;
@@ -29,23 +26,30 @@ public class DataDeserializationService : IDataDeserializationService
                 section = data[currentOffset];
             }
 
-            if (CurrentNode().Value != 0)
+            if (currentNode.Value != 0)
             {
-                content += Convert.ToChar(CurrentNode().Value);
+                buffer.Add(currentNode.Value);
                 currentIndex = 1;
+                currentNode = nodes[0];
             }
 
-            if (currentOffset == data.Count - 1 && bitOffset == lastBytePadding - 1) break;
+            var isLastByte = currentOffset == data.Count - 1;
+            var hasLastBytePadding = lastBytePadding != 0;
+            if (isLastByte && hasLastBytePadding && bitOffset == lastBytePadding - 1) break;
 
             var mask = (0b1u << bitOffset);
             var maskBit = (section & mask);
 
             var bit = maskBit >> bitOffset;
 
-            currentIndex = bit == 1 ? CurrentNode().RightIndex : CurrentNode().LeftIndex;
+            currentIndex = bit == 1 ? currentNode.RightIndex : currentNode.LeftIndex;
             bitOffset--;
         }
 
-        return content;
+        var currentValue = nodes[currentIndex - 1].Value;
+        if (currentValue != 0)
+            buffer.Add(currentValue);
+
+        return string.Join("", buffer.Select(Convert.ToChar));
     }
 }

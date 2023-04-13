@@ -42,7 +42,7 @@ public class HuffmanDeserializationService : IHuffmanDeserializationService
 
     public string Deserialize(List<byte> bytes)
     {
-        var magic = BitConverter.ToUInt32(bytes.Take(4).Reverse().ToArray());
+        var magic = BitConverter.ToUInt32(bytes.Take(4).ToArray());
         if (magic != MagicBytes) throw new ArgumentException("This doesnt seem to be HEC data");
         bytes.RemoveRange(0, 4);
 

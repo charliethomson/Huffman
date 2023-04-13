@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 
+using System.Diagnostics;
 using Huffman;
 using Huffman.Core.Services;
 using Huffman.Core.Services.Deserialization;
@@ -18,13 +19,13 @@ using Microsoft.Extensions.Hosting;
 
 using var host = Host.CreateDefaultBuilder(args).ConfigureServices(services =>
 {
-    services.AddTransient<IDataSerializationService, DataSerializationService>();
-    services.AddTransient<ITreeSerializationService, TreeSerializationService>();
-    services.AddTransient<IDataDeserializationService, DataDeserializationService>();
-    services.AddTransient<ITreeDeserializationService, TreeDeserializationService>();
-    services.AddTransient<IHuffmanSerializationService, HuffmanSerializationService>();
-    services.AddTransient<IHuffmanDeserializationService, HuffmanDeserializationService>();
-    services.AddTransient<IHuffmanService, HuffmanService>();
+    services.AddSingleton<IDataSerializationService, DataSerializationService>();
+    services.AddSingleton<ITreeSerializationService, TreeSerializationService>();
+    services.AddSingleton<IDataDeserializationService, DataDeserializationService>();
+    services.AddSingleton<ITreeDeserializationService, TreeDeserializationService>();
+    services.AddSingleton<IHuffmanSerializationService, HuffmanSerializationService>();
+    services.AddSingleton<IHuffmanDeserializationService, HuffmanDeserializationService>();
+    services.AddSingleton<IHuffmanService, HuffmanService>();
     services.AddTransient<ITreeGenerationService, TreeGenerationService>();
     services.AddTransient<App>();
 }).ConfigureAppConfiguration((hostingContext, configuration) =>
@@ -34,17 +35,23 @@ using var host = Host.CreateDefaultBuilder(args).ConfigureServices(services =>
     var env = hostingContext.HostingEnvironment;
 
     configuration
-        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddJsonFile(@"C:\Users\c\git\Huffman\Huffman\appsettings.json", optional: true, reloadOnChange: true)
         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
 }).Build();
 
-static void StartApp(IServiceProvider hostProvider)
+static async Task StartApp(IServiceProvider hostProvider)
 {
     using var serviceScope = hostProvider.CreateScope();
     var provider = serviceScope.ServiceProvider;
     var app = provider.GetRequiredService<App>();
 
-    app.Run();
+    // app.RunWithStringAndDebugInfo("MLJLKWFUIHPONVCVPOOAODXJYDGHWFBAPCWUIOPAPKROJNYSPLCYAIMRTSSCRTDMRAQNLPBNIBEYQVTSQCKVTDDRODRGRLJNTJGL");
+    // app.RunWithStringAndDebugInfo("🎉🎉");
+    await app.RunHamlet();
+    // app.RunProfiling();
+    // app.Run();
+    Environment.Exit(0);
+    
 }
 
 StartApp(host.Services);

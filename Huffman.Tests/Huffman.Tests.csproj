@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Services\Deserialization" />
       <Folder Include="Services\Generation" />
       <Folder Include="Services\Serialization" />
     </ItemGroup>

@@ -10,27 +10,24 @@ namespace Huffman.Core.Services;
 
 public class HuffmanSerializationService : IHuffmanSerializationService
 {
-    private readonly IConfiguration _configuration;
     private readonly ITreeGenerationService _treeGenerationService;
     private readonly ITreeSerializationService _treeSerializationService;
     private readonly IDataSerializationService _dataSerializationService;
 
-    private uint MagicBytes => Convert.ToUInt32(_configuration["Serde:MagicBytes"]);
-
+    private readonly uint? _magicBytes;
     public HuffmanSerializationService(
         IConfiguration configuration,
         IDataSerializationService dataSerializationService,
         ITreeSerializationService treeSerializationService,
         ITreeGenerationService treeGenerationService)
     {
-        _configuration =
-            configuration ?? throw new ArgumentNullException(nameof(configuration));
         _treeSerializationService =
             treeSerializationService ?? throw new ArgumentNullException(nameof(treeSerializationService));
         _treeGenerationService =
             treeGenerationService ?? throw new ArgumentNullException(nameof(treeGenerationService));
         _dataSerializationService =
             dataSerializationService ?? throw new ArgumentNullException(nameof(dataSerializationService));
+        _magicBytes ??= Convert.ToUInt32(configuration["Serde:MagicBytes"]);
     }
 
     public IEnumerable<byte> Serialize(string data)
@@ -42,7 +39,7 @@ public class HuffmanSerializationService : IHuffmanSerializationService
 
 
         var bytes = new List<byte>();
-        bytes.AddRange(BitConverter.GetBytes(MagicBytes));
+        bytes.AddRange(BitConverter.GetBytes(_magicBytes!.Value));
         bytes.AddRange(BitConverter.GetBytes(serializedTree.Count));
         bytes.AddRange(serializedTree);
         bytes.AddRange(BitConverter.GetBytes(encodedData.Count));

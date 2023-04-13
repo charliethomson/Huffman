@@ -88,6 +88,17 @@ public class TreeNode
         return (path, depth + 1);
     }
 
+    public (string path, int depth) GetPathFromRootString()
+    {
+        if (Parent == null) return ("", 0);
+        var amIRight = AmIRightChild();
+
+        var (path, depth) = Parent.GetPathFromRootString();
+
+        path += amIRight ? '1' : '0';
+        return (path, depth + 1);
+    }
+
     public bool TryFindChildWithItem(char item, out TreeNode node)
     {
         node = null!;

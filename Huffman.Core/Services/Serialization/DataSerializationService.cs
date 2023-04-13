@@ -1,4 +1,5 @@
-﻿using Huffman.Infra.Services.Serialization;
+﻿using System.Diagnostics;
+using Huffman.Infra.Services.Serialization;
 using Huffman.Models;
 
 namespace Huffman.Core.Services.Serialization;
@@ -9,21 +10,26 @@ public class DataSerializationService : IDataSerializationService
 
     public (ICollection<byte> encodedData, byte lastBytePaddingAmount) SerializeData(string data, TreeNode tree)
     {
-        var lookupByChar = new Dictionary<char, TreeNode>();
-        var result = new List<byte>();
+        var lookupBits = new Dictionary<char, (uint, int)>();
+        var result = new List<byte>(data.Length);
         byte workingByte = 0;
         var workingOffset = 0;
 
-        foreach (var c in data)
+        for (var index = 0; index < data.Length; index++)
         {
-            if (lookupByChar.TryGetValue(c, out var node)) ;
-            else if (tree.TryFindChildWithItem(c, out node))
+            var c = data[index];
+            uint bitPath;
+            int bits;
+            if (lookupBits.TryGetValue(c, out var existingEntry))
             {
-                lookupByChar.Add(c, node);
+                (bitPath, bits) = existingEntry;
             }
-            else throw new Exception($"Failed to find node with character {c}");
-
-            var (bitPath, bits) = node.GetPathFromRoot();
+            else if (tree.TryFindChildWithItem(c, out var node))
+            {
+                (bitPath, bits) = node.GetPathFromRoot();
+                lookupBits.Add(c, (bitPath, bits));
+            }
+            else throw new UnreachableException();
 
             while (bits > 0)
             {
@@ -44,8 +50,20 @@ public class DataSerializationService : IDataSerializationService
             }
         }
 
-        if (workingByte != 0) result.Add((byte)(workingByte << (8 - workingOffset)));
+        var remainder = 8 - workingOffset;
+        switch (remainder)
+        {
+            case 0:
+                result.Add(workingByte);
+                return (result, 0);
+            case WorkingIntSize:
+                return (result, (byte)remainder);
+        }
 
-        return (result, (byte)(8 - workingOffset));
+        var lastByte = workingByte << remainder;
+        // Fill remainder bits - 4 => 0b00010000 - 1 => 0b00001111
+        var padding = (0b1 << remainder) - 1;
+        result.Add((byte)(lastByte | padding));
+        return (result, (byte)remainder);
     }
 }
