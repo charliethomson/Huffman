@@ -22,14 +22,7 @@ public class TreeGenerationService : ITreeGenerationService
         foreach (var node in nonZeroNodes)
             queue.Enqueue(node, node.Value);
 
-        switch (queue.Count)
-        {
-            case 0:
-                throw new ArgumentException("No characters found to generate tree from.");
-            case 1:
-                return queue.Dequeue();
-        }
-
+        // TODO: Error checking
         while (queue.Count > 1)
         {
             var node1 = queue.Dequeue();

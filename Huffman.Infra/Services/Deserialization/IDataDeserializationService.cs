@@ -5,5 +5,5 @@ namespace Huffman.Infra.Services.Deserialization;
 
 public interface IDataDeserializationService
 {
-    string DeserializeData(IReadOnlyList<byte> data, IReadOnlyList<InternalTreeNode> nodes, byte lastBytePadding);
+    string DeserializeData(byte[] data, InternalTreeNode[] nodes, byte lastBytePadding);
 }

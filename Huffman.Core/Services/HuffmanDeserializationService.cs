@@ -55,6 +55,6 @@ public class HuffmanDeserializationService : IHuffmanDeserializationService
         var data = ReadBytes(ref bytes, (int)dataSize);
 
         var tree = _treeDeserializationService.DeserializeTree(treeData);
-        return _dataDeserializationService.DeserializeData(data, tree, dataEndPadding);
+        return _dataDeserializationService.DeserializeData(data.ToArray(), tree.ToArray(), dataEndPadding);
     }
 }

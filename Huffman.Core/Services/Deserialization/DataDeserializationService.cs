@@ -1,39 +1,41 @@
-﻿using Huffman.Infra.Services.Deserialization;
+﻿using System.Text;
+using Huffman.Infra.Services.Deserialization;
 using Huffman.Models;
 
 namespace Huffman.Core.Services.Deserialization;
 
 public class DataDeserializationService : IDataDeserializationService
 {
-    public string DeserializeData(IReadOnlyList<byte> data, IReadOnlyList<InternalTreeNode> nodes, byte lastBytePadding)
+    public string DeserializeData(byte[] data, InternalTreeNode[] nodes, byte lastBytePadding)
     {
         var bitOffset = 7;
         var currentOffset = 0;
 
         var section = data[currentOffset];
-        var buffer = new List<int>(data.Count * 2);
+        var dataCount = data.Length;
+        var sb = new StringBuilder(dataCount * 2);
 
         var currentIndex = 1;
 
-        while (currentOffset < data.Count)
+        while (currentOffset < dataCount)
         {
             var currentNode = nodes[currentIndex - 1];
             if (bitOffset < 0)
             {
                 bitOffset = 7;
-                if (++currentOffset >= data.Count) break;
+                if (++currentOffset >= dataCount) break;
 
                 section = data[currentOffset];
             }
 
             if (currentNode.Value != 0)
             {
-                buffer.Add(currentNode.Value);
+                sb.Append((char)currentNode.Value);
                 currentIndex = 1;
                 currentNode = nodes[0];
             }
 
-            var isLastByte = currentOffset == data.Count - 1;
+            var isLastByte = currentOffset == dataCount - 1;
             var hasLastBytePadding = lastBytePadding != 0;
             if (isLastByte && hasLastBytePadding && bitOffset == lastBytePadding - 1) break;
 
@@ -48,8 +50,8 @@ public class DataDeserializationService : IDataDeserializationService
 
         var currentValue = nodes[currentIndex - 1].Value;
         if (currentValue != 0)
-            buffer.Add(currentValue);
+            sb.Append((char)currentValue);
 
-        return string.Join("", buffer.Select(Convert.ToChar));
+        return sb.ToString();
     }
 }
