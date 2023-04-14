@@ -4,7 +4,7 @@ namespace Huffman.Models;
 
 public class TreeNode
 {
-    private readonly uint _intrinsicValue = 0;
+    public uint IntrinsicValue;
     public Guid Id { get; }
     public char? Item { get; set; } = null;
 
@@ -38,10 +38,11 @@ public class TreeNode
     {
         get
         {
-            if (_intrinsicValue != 0) return _intrinsicValue;
+            if (IntrinsicValue != 0) return IntrinsicValue;
 
             return (Left?.Value ?? 0) + (Right?.Value ?? 0);
         }
+        set => IntrinsicValue = value;
     }
 
     public TreeNode()
@@ -56,7 +57,7 @@ public class TreeNode
 
     public TreeNode(char item, uint intrinsicValue) : this(item)
     {
-        _intrinsicValue = intrinsicValue;
+        IntrinsicValue = intrinsicValue;
     }
 
     public TreeNode(TreeNode left) : this()
@@ -152,7 +153,7 @@ public class TreeNode
         {
             var (path, depth) = GetPathFromRoot();
             Console.WriteLine(
-                $@"Id={Id};Item='{Regex.Escape(Item.ToString())}';_intrinsicValue={_intrinsicValue};Path={Convert.ToString(path, 2)};Depth={depth};");
+                $@"Id={Id};Item='{Regex.Escape(Item.ToString())}';_intrinsicValue={IntrinsicValue};Path={Convert.ToString(path, 2)};Depth={depth};");
         }
         else
             Console.WriteLine(

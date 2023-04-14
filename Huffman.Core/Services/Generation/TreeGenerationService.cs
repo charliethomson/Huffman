@@ -7,27 +7,36 @@ public class TreeGenerationService : ITreeGenerationService
 {
     public TreeNode GenerateHuffmanTree(string data)
     {
-        var counts = new Dictionary<char, uint>();
+        var treeNodes = new TreeNode?[255];
 
         foreach (var c in data)
-            counts[c] = counts.GetValueOrDefault(c) + 1;
+        {
+            var b = (byte)c;
+            treeNodes[b] ??= new TreeNode(c, 0);
+            treeNodes[b]!.IntrinsicValue++;
+        }
 
-        var nodes = counts.Select(pair => new TreeNode(pair.Key, pair.Value));
+        TreeNode[] nonZeroNodes = treeNodes.Where(node => node != null).ToArray()!;
 
-        var queue = new PriorityQueue<TreeNode, uint>(counts.Count);
-        foreach (var node in nodes)
+        var queue = new PriorityQueue<TreeNode, uint>(nonZeroNodes.Length);
+        foreach (var node in nonZeroNodes)
             queue.Enqueue(node, node.Value);
 
-        var keepGoing = queue.Count >= 2;
-        while (keepGoing)
+        switch (queue.Count)
+        {
+            case 0:
+                throw new ArgumentException("No characters found to generate tree from.");
+            case 1:
+                return queue.Dequeue();
+        }
+
+        while (queue.Count > 1)
         {
             var node1 = queue.Dequeue();
             var node2 = queue.Dequeue();
 
             var newNode = new TreeNode(node1, node2);
             queue.Enqueue(newNode, newNode.Value);
-
-            keepGoing = queue.Count >= 2;
         }
 
         return queue.Dequeue();

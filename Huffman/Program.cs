@@ -47,8 +47,8 @@ static async Task StartApp(IServiceProvider hostProvider)
 
     // app.RunWithStringAndDebugInfo("MLJLKWFUIHPONVCVPOOAODXJYDGHWFBAPCWUIOPAPKROJNYSPLCYAIMRTSSCRTDMRAQNLPBNIBEYQVTSQCKVTDDRODRGRLJNTJGL");
     // app.RunWithStringAndDebugInfo("🎉🎉");
-    await app.RunHamlet();
-    // app.RunProfiling();
+    // await app.RunHamlet();
+    app.RunProfiling();
     // app.Run();
     Environment.Exit(0);
     

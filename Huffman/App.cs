@@ -363,10 +363,11 @@ public class App
         var runs = 0;
 
         var lossless = true;
+        var data = GenerateRandomString();
+
         while (lossless && runs < NumRuns)
         {
             runs++;
-            var data = GenerateRandomString();
             var serializedData = _huffmanService.SerializeData(data);
             var deserializedData = _huffmanService.DeserializeData(serializedData);
             lossless = deserializedData == data;
