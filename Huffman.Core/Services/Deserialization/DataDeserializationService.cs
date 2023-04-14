@@ -10,12 +10,11 @@ public class DataDeserializationService : IDataDeserializationService
     {
         var bitOffset = 7;
         var currentOffset = 0;
+        var currentIndex = 1;
 
         var section = data[currentOffset];
         var dataCount = data.Length;
-        var sb = new StringBuilder(dataCount * 2);
-
-        var currentIndex = 1;
+        var sb = new StringBuilder();
 
         while (currentOffset < dataCount)
         {

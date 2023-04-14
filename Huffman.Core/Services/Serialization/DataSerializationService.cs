@@ -11,7 +11,7 @@ public class DataSerializationService : IDataSerializationService
     public (ICollection<byte> encodedData, byte lastBytePaddingAmount) SerializeData(string data, TreeNode tree)
     {
         var lookupBitsArr = new (uint, int)?[255];
-        var result = new List<byte>(data.Length);
+        var result = new List<byte>();
         byte workingByte = 0;
         var workingOffset = 0;
 

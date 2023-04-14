@@ -16,11 +16,9 @@ public class TreeGenerationService : ITreeGenerationService
             treeNodes[b]!.IntrinsicValue++;
         }
 
-        TreeNode[] nonZeroNodes = treeNodes.Where(node => node != null).ToArray()!;
-
-        var queue = new PriorityQueue<TreeNode, uint>(nonZeroNodes.Length);
-        foreach (var node in nonZeroNodes)
-            queue.Enqueue(node, node.Value);
+        var queue = new PriorityQueue<TreeNode, uint>();
+        foreach (var node in treeNodes.Where(node => node != null))
+            queue.Enqueue(node!, node!.Value);
 
         // TODO: Error checking
         while (queue.Count > 1)
