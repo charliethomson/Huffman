@@ -24,7 +24,7 @@ public class HuffmanService : IHuffmanService
 
     public string DeserializeData(IEnumerable<byte> data)
     {
-        return _huffmanDeserializationService.Deserialize(data.ToList());
+        return _huffmanDeserializationService.Deserialize(data.ToArray());
     }
 
     public string DeserializeFile(string filePath, string outPath)

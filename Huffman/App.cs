@@ -374,6 +374,44 @@ public class App
 
         Console.WriteLine($"Lossless={lossless}");
     }
+    
+    public void ProfileDeserialization()
+    {
+        var runs = 0;
+
+        var lossless = true;
+        var data = GenerateRandomString();
+        var serializedData = _huffmanService.SerializeData(data);
+
+        while (lossless && runs < NumRuns * 100)
+        {
+            Console.WriteLine($"{runs} / {NumRuns * 100}");
+            runs++;
+            var deserializedData = _huffmanService.DeserializeData(serializedData);
+            lossless = deserializedData == data;
+        }
+
+        Console.WriteLine($"Lossless={lossless}");
+    }
+    public void ProfileSerialization()
+    {
+        var runs = 0;
+
+        var lossless = true;
+        var data = GenerateRandomString();
+        var serializedData = _huffmanService.SerializeData(data);
+        var deserializedData = _huffmanService.DeserializeData(serializedData);
+        lossless = deserializedData == data;
+
+        while (lossless && runs < NumRuns * 100)
+        {
+            Console.WriteLine($"{runs} / {NumRuns * 100}");
+            runs++;
+            serializedData = _huffmanService.SerializeData(data);
+        }
+
+        Console.WriteLine($"Lossless={lossless}");
+    }
 
     internal class DebugData
     {

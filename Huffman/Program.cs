@@ -49,7 +49,8 @@ static void StartApp(IServiceProvider hostProvider)
     // app.RunWithStringAndDebugInfo("Hello");
     // await app.RunHamlet();
     // app.RunProfiling();
-    app.RunUntilLossy();
+    // app.ProfileDeserialization();
+    app.ProfileSerialization();
     Environment.Exit(0);
 }
 

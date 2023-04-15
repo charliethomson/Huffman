@@ -10,17 +10,16 @@ public class DataSerializationService : IDataSerializationService
 
     public (ICollection<byte> encodedData, byte lastBytePaddingAmount) SerializeData(string data, TreeNode tree)
     {
-        var lookupBitsArr = new (uint, int)?[255];
+        var lookupBits = new (uint, int)?[255];
         var result = new List<byte>();
         byte workingByte = 0;
         var workingOffset = 0;
 
-        for (var index = 0; index < data.Length; index++)
+        foreach (var c in data)
         {
-            var c = data[index];
             uint bitPath;
             int bits;
-            var existingEntry = lookupBitsArr[(byte)c];
+            var existingEntry = lookupBits[(byte)c];
             if (existingEntry.HasValue)
             {
                 (bitPath, bits) = existingEntry.Value;
@@ -28,7 +27,7 @@ public class DataSerializationService : IDataSerializationService
             else if (tree.TryFindChildWithItem(c, out var node))
             {
                 (bitPath, bits) = node.GetPathFromRoot();
-                lookupBitsArr[(byte)c] = (bitPath, bits);
+                lookupBits[(byte)c] = (bitPath, bits);
             }
             else throw new UnreachableException();
 

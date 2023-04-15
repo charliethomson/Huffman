@@ -2,5 +2,5 @@
 
 public interface IHuffmanDeserializationService
 {
-    string Deserialize(List<byte> bytes);
+    string Deserialize(byte[] bytes);
 }

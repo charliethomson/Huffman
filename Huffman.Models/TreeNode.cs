@@ -111,9 +111,7 @@ public class TreeNode
         }
 
         if (Left?.TryFindChildWithItem(item, out node) ?? false) return true;
-        if (Right?.TryFindChildWithItem(item, out node) ?? false) return true;
-
-        return false;
+        return Right?.TryFindChildWithItem(item, out node) ?? false;
     }
 
     public IEnumerable<TreeNode> GetAllChildren()

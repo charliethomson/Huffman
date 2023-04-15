@@ -23,55 +23,41 @@ public class HuffmanDeserializationService : IHuffmanDeserializationService
                                       throw new ArgumentNullException(nameof(dataDeserializationService));
     }
 
-    private static byte ReadU8(ref List<byte> bytes)
+    private static byte ReadByte(byte[] data, ref int offset)
     {
-        var b = bytes[0];
-        bytes.RemoveAt(0);
+        var b = data[offset];
+        offset += 1;
         return b;
     }
 
-    private static uint ReadU32(ref List<byte> bytes)
+    private static int ReadInt(byte[] data, ref int offset)
     {
-        var data = BitConverter.ToUInt32(bytes.GetRange(0, 4).ToArray());
-        bytes.RemoveRange(0, 4);
-        return data;
+        var i = BitConverter.ToInt32(new Span<byte>(data, offset, 4));
+        offset += 4;
+        return i;
     }
 
-    private static List<byte> ReadBytes(ref List<byte> bytes, int nBytes)
+    private static Span<byte> ReadBytes(byte[] data, ref int offset, int size)
     {
-        var data = bytes.GetRange(0, nBytes);
-        bytes.RemoveRange(0, nBytes);
-        return data;
+        var bytes = new Span<byte>(data, offset, size);
+        offset += size;
+        return bytes;
     }
 
-    public string Deserialize(List<byte> bytes)
+    public string Deserialize(byte[] bytes)
     {
         var offset = 0;
-        var arrayBytes = bytes.ToArray();
-        var magic = BitConverter.ToUInt32(new Span<byte>(arrayBytes, offset, 4));
-        // var magic = BitConverter.ToUInt32(bytes.Take(4).ToArray());
+        var magic = ReadInt(bytes, ref offset);
         if (magic != MagicBytes) throw new ArgumentException("This doesnt seem to be HEC data");
-        // bytes.RemoveRange(0, 4);
-        offset += 4;
 
-        var treeSize = BitConverter.ToInt32(new Span<byte>(arrayBytes, offset, 4));
-        offset += 4;
-        // var treeSize = ReadU32(ref bytes);
-        var treeData = new Span<byte>(arrayBytes, offset, treeSize);
-        offset += treeSize;
-        // var treeData = ReadBytes(ref bytes, (int)treeSize);
+        var treeSize = ReadInt(bytes, ref offset);
+        var treeData = ReadBytes(bytes, ref offset, treeSize);
 
-        var dataSize = BitConverter.ToInt32(new Span<byte>(arrayBytes, offset, 4));
-        offset += 4;
-        // var dataSize = ReadU32(ref bytes);
-        var dataEndPadding = arrayBytes[offset];
-        offset += 1;
-        // var dataEndPadding = ReadU8(ref bytes);
-        var data = new Span<byte>(arrayBytes, offset, dataSize);
-        // var data = ReadBytes(ref bytes, (int)dataSize);
-        offset += dataSize;
+        var dataSize = ReadInt(bytes, ref offset);
+        var dataEndPadding = ReadByte(bytes, ref offset);
+        var data = ReadBytes(bytes, ref offset, dataSize);
 
         var tree = _treeDeserializationService.DeserializeTree(treeData);
-        return _dataDeserializationService.DeserializeData(data.ToArray(), tree.ToArray(), dataEndPadding);
+        return _dataDeserializationService.DeserializeData(data, tree.ToArray(), dataEndPadding);
     }
 }

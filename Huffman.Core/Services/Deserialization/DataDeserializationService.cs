@@ -6,7 +6,7 @@ namespace Huffman.Core.Services.Deserialization;
 
 public class DataDeserializationService : IDataDeserializationService
 {
-    public string DeserializeData(byte[] data, InternalTreeNode[] nodes, byte lastBytePadding)
+    public string DeserializeData(Span<byte> data, InternalTreeNode[] nodes, byte lastBytePadding)
     {
         var bitOffset = 7;
         var currentOffset = 0;
