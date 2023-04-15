@@ -5,15 +5,19 @@ namespace Huffman.Core.Services.Deserialization;
 
 public class TreeDeserializationService : ITreeDeserializationService
 {
-    public List<InternalTreeNode> DeserializeTree(IEnumerable<byte> bytes)
+    public InternalTreeNode[] DeserializeTree(Span<byte> bytes)
     {
-        return bytes.Chunk(3).Select(nodeBytes =>
-        {
-            var leftIndex = nodeBytes[0];
-            var rightIndex = nodeBytes[1];
-            var value = nodeBytes[2];
+        var nodes = new InternalTreeNode[bytes.Length / 3];
 
-            return new InternalTreeNode() { Value = value, LeftIndex = leftIndex, RightIndex = rightIndex };
-        }).ToList();
+        for (var i = 0; i < nodes.Length; i++)
+        {
+            var leftIndex = bytes[i * 3];
+            var rightIndex = bytes[i * 3 + 1];
+            var value = bytes[i * 3 + 2];
+
+            nodes[i] = new InternalTreeNode() { Value = value, LeftIndex = leftIndex, RightIndex = rightIndex };
+        }
+
+        return nodes;
     }
 }

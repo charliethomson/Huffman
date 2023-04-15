@@ -46,17 +46,30 @@ public class HuffmanDeserializationService : IHuffmanDeserializationService
 
     public string Deserialize(List<byte> bytes)
     {
-        var magic = BitConverter.ToUInt32(bytes.Take(4).ToArray());
+        var offset = 0;
+        var arrayBytes = bytes.ToArray();
+        var magic = BitConverter.ToUInt32(new Span<byte>(arrayBytes, offset, 4));
+        // var magic = BitConverter.ToUInt32(bytes.Take(4).ToArray());
         if (magic != MagicBytes) throw new ArgumentException("This doesnt seem to be HEC data");
-        bytes.RemoveRange(0, 4);
+        // bytes.RemoveRange(0, 4);
+        offset += 4;
 
+        var treeSize = BitConverter.ToInt32(new Span<byte>(arrayBytes, offset, 4));
+        offset += 4;
+        // var treeSize = ReadU32(ref bytes);
+        var treeData = new Span<byte>(arrayBytes, offset, treeSize);
+        offset += treeSize;
+        // var treeData = ReadBytes(ref bytes, (int)treeSize);
 
-        var treeSize = ReadU32(ref bytes);
-        var treeData = ReadBytes(ref bytes, (int)treeSize);
-
-        var dataSize = ReadU32(ref bytes);
-        var dataEndPadding = ReadU8(ref bytes);
-        var data = ReadBytes(ref bytes, (int)dataSize);
+        var dataSize = BitConverter.ToInt32(new Span<byte>(arrayBytes, offset, 4));
+        offset += 4;
+        // var dataSize = ReadU32(ref bytes);
+        var dataEndPadding = arrayBytes[offset];
+        offset += 1;
+        // var dataEndPadding = ReadU8(ref bytes);
+        var data = new Span<byte>(arrayBytes, offset, dataSize);
+        // var data = ReadBytes(ref bytes, (int)dataSize);
+        offset += dataSize;
 
         var tree = _treeDeserializationService.DeserializeTree(treeData);
         return _dataDeserializationService.DeserializeData(data.ToArray(), tree.ToArray(), dataEndPadding);

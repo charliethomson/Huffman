@@ -39,19 +39,18 @@ using var host = Host.CreateDefaultBuilder(args).ConfigureServices(services =>
         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
 }).Build();
 
-static async Task StartApp(IServiceProvider hostProvider)
+static void StartApp(IServiceProvider hostProvider)
 {
     using var serviceScope = hostProvider.CreateScope();
     var provider = serviceScope.ServiceProvider;
     var app = provider.GetRequiredService<App>();
 
     // app.RunWithStringAndDebugInfo("MLJLKWFUIHPONVCVPOOAODXJYDGHWFBAPCWUIOPAPKROJNYSPLCYAIMRTSSCRTDMRAQNLPBNIBEYQVTSQCKVTDDRODRGRLJNTJGL");
-    // app.RunWithStringAndDebugInfo("🎉🎉");
+    // app.RunWithStringAndDebugInfo("Hello");
     // await app.RunHamlet();
-    app.RunProfiling();
-    // app.Run();
+    // app.RunProfiling();
+    app.RunUntilLossy();
     Environment.Exit(0);
-    
 }
 
 StartApp(host.Services);

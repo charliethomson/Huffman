@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices.JavaScript;
+using System.Text;
 using System.Text.Json;
 using BetterConsoles.Tables;
 using BetterConsoles.Tables.Configuration;
@@ -20,7 +21,7 @@ public class App
     private readonly ITreeGenerationService _treeGenerationService;
 
     private const int NumChars = 100000;
-    private const int NumRuns = 1_000_000 / NumChars;
+    private const int NumRuns = 10_000_000 / NumChars;
     private const int NumRunsHamlet = 50;
 
     private List<long> encodeTimes = new();
@@ -284,9 +285,7 @@ public class App
                 runs++;
                 data = "";
                 PrintStatus("Generating string                       ");
-                for (var i = 0; i < NumChars; i++)
-                    data += (char)Random.Shared.Next(65, 90); /* ASCII uppercase */
-
+                data = GenerateRandomString();
                 PrintStatus("Encoding                                ");
                 var encodeTimer = new Stopwatch();
                 encodeTimer.Start();
@@ -352,10 +351,10 @@ public class App
 
     private string GenerateRandomString()
     {
-        var data = "";
+        var sb = new StringBuilder(NumChars);
         for (var i = 0; i < NumChars; i++)
-            data += (char)Random.Shared.Next(65, 90); /* ASCII uppercase */
-        return data;
+            sb.Append((char)Random.Shared.Next(65, 90)); /* ASCII uppercase */
+        return sb.ToString();
     }
 
     public void RunProfiling()
