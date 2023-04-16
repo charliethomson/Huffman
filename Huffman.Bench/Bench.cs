@@ -9,6 +9,7 @@ using Huffman.Infra.Services;
 using Huffman.Infra.Services.Deserialization;
 using Huffman.Infra.Services.Generation;
 using Huffman.Infra.Services.Serialization;
+using Huffman.Models;
 using Huffman.Services.Serde;
 using Microsoft.Extensions.Configuration;
 
@@ -28,11 +29,21 @@ public class Bench
 
     private List<byte> _serializedBytes { get; set; }
     private List<byte> _serializedChars { get; set; }
+    private byte[] _serializedTree { get; set; }
 
     private List<byte> _bytes { get; set; }
     private string _chars { get; set; }
+    private TreeNode _tree { get; set; }
 
-    [Params(1_000, 1_000_000, 1_000_000_000)]
+    [Params(
+        1_000
+        , 10_000
+        , 100_000
+        , 1_000_000
+        , 10_000_000
+        , 100_000_000
+        , 1_000_000_000
+    )]
     public int NumBytes = 1;
 
     [GlobalSetup]
@@ -63,6 +74,8 @@ public class Bench
 
         _chars = sb.ToString();
         _serializedChars = _huffmanService.SerializeData(_chars).ToList();
+        _tree = _treeGenerationService.GenerateHuffmanTree(_chars);
+        _serializedTree = _treeSerializationService.SerializeTree(_tree).ToArray();
     }
 
     [Benchmark]
@@ -71,4 +84,13 @@ public class Bench
     [Benchmark]
     public void BenchStringDecoding() => _huffmanService.DeserializeData(_serializedChars);
 
+    [Benchmark]
+    public void BenchTreeGeneration() => _treeGenerationService.GenerateHuffmanTree(_chars);
+
+    [Benchmark]
+    public void BenchTreeSerialization() => _treeSerializationService.SerializeTree(_tree);
+
+    [Benchmark]
+    public void BenchTreeDeserialization() =>
+        _treeDeserializationService.DeserializeTree(new Span<byte>(_serializedTree, 0, _serializedTree.Length));
 }
